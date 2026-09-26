@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Diário de Treino</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Diário de Treino">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#3D5A80">
+<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Di%C3%A1rio%20de%20Treino%22%2C%22short_name%22%3A%22Treino%22%2C%22display%22%3A%22standalone%22%2C%22start_url%22%3A%22.%2F%22%2C%22background_color%22%3A%22%23F1ECE1%22%2C%22theme_color%22%3A%22%233D5A80%22%7D">
+<style>
+  :root{
+    --paper:#F1ECE1; --paper-line:#DCD3BE; --card:#FFFFFF;
+    --ink:#2B2A26; --ink-soft:#6B675E;
+    --steel:#3D5A80; --steel-dark:#2C4364; --rust:#A6402F;
+    --rafael:#3D5A80; --amanda:#A6553D;
+    box-sizing:border-box;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+    -webkit-font-smoothing:antialiased;
+  }
+  header{
+    position:sticky; top:0; z-index:5;
+    padding:calc(env(safe-area-inset-top,0px) + 18px) 20px 0;
+    background:var(--paper); border-bottom:1px solid var(--paper-line);
+  }
+  h1{ font-family:Georgia,"Times New Roman",serif; font-size:1.5rem; margin:0 0 2px; }
+  header p{ margin:0 0 10px; font-size:.85rem; color:var(--ink-soft); }
+  .status{ font-size:.72rem; color:var(--ink-soft); margin:-4px 0 10px; min-height:1.2em; }
+  .status.err{ color:var(--rust); }
+  .tabs{ display:flex; gap:6px; overflow-x:auto; padding-bottom:12px; -webkit-overflow-scrolling:touch; }
+  .tab{
+    flex:none; padding:8px 14px; border-radius:999px;
+    border:1px solid var(--paper-line); background:var(--card);
+    color:var(--ink-soft); font-size:.85rem; cursor:pointer; white-space:nowrap;
+  }
+  .tab.active{ background:var(--steel); border-color:var(--steel); color:#fff; }
+  main{ max-width:520px; margin:0 auto; padding:16px 16px 100px; }
+  .entry{
+    background:var(--card); border:1px solid var(--paper-line);
+    border-radius:10px; padding:12px 14px; margin-bottom:8px; cursor:pointer;
+  }
+  .entry-exercise{ font-size:1rem; font-weight:600; margin-bottom:6px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .weights{ display:flex; gap:16px; }
+  .weight-item{ font-size:.85rem; color:var(--ink-soft); }
+  .weight-item b{ font-size:1rem; }
+  .weight-item.rafael b{ color:var(--rafael); }
+  .weight-item.amanda b{ color:var(--amanda); }
+  .empty{ text-align:center; color:var(--ink-soft); padding:60px 20px; font-size:.95rem; }
+  .fab{
+    position:fixed; right:20px; bottom:calc(24px + env(safe-area-inset-bottom,0px));
+    width:56px; height:56px; border-radius:50%;
+    background:var(--steel); color:#fff; border:none; font-size:1.8rem;
+    box-shadow:0 6px 16px rgba(0,0,0,.25); cursor:pointer; z-index:10;
+  }
+  .sheet-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,.35); display:none; z-index:20; }
+  .sheet-backdrop.open{ display:block; }
+  .sheet{
+    position:fixed; left:0; right:0; bottom:0; background:var(--paper);
+    border-radius:16px 16px 0 0; padding:18px 20px calc(20px + env(safe-area-inset-bottom,0px));
+    transform:translateY(100%); transition:transform .25s ease; z-index:21;
+    max-height:85vh; overflow-y:auto;
+  }
+  .sheet.open{ transform:translateY(0); }
+  .sheet h2{ margin:0 0 4px; font-size:1.1rem; font-family:Georgia,serif; }
+  .sheet .cat-name{ font-size:.82rem; color:var(--ink-soft); margin-bottom:10px; }
+  label{ display:block; font-size:.78rem; color:var(--ink-soft); margin:12px 0 4px; }
+  input{
+    width:100%; padding:10px 12px; border-radius:8px;
+    border:1px solid var(--paper-line); background:var(--card);
+    color:var(--ink); font-size:1rem;
+  }
+  input:focus{ outline:2px solid var(--steel); outline-offset:1px; }
+  input.error{ border-color:var(--rust); }
+  .error-msg{ color:var(--rust); font-size:.8rem; margin-top:6px; min-height:1.1em; }
+  .weight-row{ display:flex; gap:10px; }
+  .weight-row > div{ flex:1; }
+  .sheet-actions{ display:flex; gap:10px; margin-top:18px; }
+  .btn{ flex:1; padding:12px; border-radius:8px; border:none; font-size:1rem; cursor:pointer; }
+  .btn-primary{ background:var(--steel); color:#fff; }
+  .btn-primary:disabled{ opacity:.6; }
+  .btn-ghost{ background:transparent; color:var(--ink-soft); border:1px solid var(--paper-line); }
+  .btn-danger{ background:transparent; color:var(--rust); border:1px solid var(--rust); flex:none; padding:12px 16px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Diário de Treino</h1>
+  <p>Rafael e Amanda, sincronizado nos dois aparelhos</p>
+  <div class="status" id="status"></div>
+  <div class="tabs" id="tabs"></div>
+</header>
+<main>
+  <div id="list"></div>
+</main>
+
+<button class="fab" id="openBtn" aria-label="Adicionar exercício">+</button>
+
+<div class="sheet-backdrop" id="backdrop"></div>
+<div class="sheet" id="sheet">
+  <h2 id="sheetTitle">Novo exercício</h2>
+  <div class="cat-name" id="sheetCat"></div>
+  <label for="exercise">Exercício</label>
+  <input id="exercise" type="text" placeholder="Ex: Supino reto" autocomplete="off">
+  <div class="error-msg" id="errorMsg"></div>
+  <div class="weight-row">
+    <div>
+      <label for="wRafael">Rafael (kg)</label>
+      <input id="wRafael" type="number" inputmode="decimal" placeholder="Ex: 40">
+    </div>
+    <div>
+      <label for="wAmanda">Amanda (kg)</label>
+      <input id="wAmanda" type="number" inputmode="decimal" placeholder="Ex: 20">
+    </div>
+  </div>
+  <div class="sheet-actions">
+    <button class="btn-danger" id="deleteBtn" style="display:none;">Excluir</button>
+    <button class="btn btn-ghost" id="cancelBtn">Cancelar</button>
+    <button class="btn btn-primary" id="saveBtn">Salvar</button>
+  </div>
+</div>
+
+<script>
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwwp7EFhZEHPNwpR_lTlAgbUq6XnEvQcgAschjItr9ZBRbG9SSqY7WTAj6x-lsl8JG-Nw/exec";
+const POLL_MS = 6000;
+
+const CATEGORIES = [
+  {id:"costas-biceps", name:"Costas e Bíceps"},
+  {id:"ombro-triceps", name:"Ombro e Tríceps"},
+  {id:"perna", name:"Perna"},
+  {id:"gluteo", name:"Glúteo"},
+  {id:"peito", name:"Peito"},
+];
+
+let cache = {};
+CATEGORIES.forEach(c => cache[c.id] = []);
+let activeCat = CATEGORIES[0].id;
+let editingId = null;
+let lastSyncOk = false;
+
+const tabsEl = document.getElementById("tabs");
+const listEl = document.getElementById("list");
+const statusEl = document.getElementById("status");
+const sheet = document.getElementById("sheet");
+const backdrop = document.getElementById("backdrop");
+const exerciseInput = document.getElementById("exercise");
+const wRafaelInput = document.getElementById("wRafael");
+const wAmandaInput = document.getElementById("wAmanda");
+const errorMsg = document.getElementById("errorMsg");
+const deleteBtn = document.getElementById("deleteBtn");
+const saveBtn = document.getElementById("saveBtn");
+
+function catName(id){ return CATEGORIES.find(c => c.id === id).name; }
+function normalize(s){ return s.trim().toLowerCase(); }
+
+function isDuplicate(name, excludeId){
+  const n = normalize(name);
+  return cache[activeCat].some(ex => ex.id !== excludeId && normalize(ex.name) === n);
+}
+
+function setStatus(msg, isErr){
+  statusEl.textContent = msg || "";
+  statusEl.classList.toggle("err", !!isErr);
+}
+
+async function fetchRemote(){
+  try{
+    const res = await fetch(WEB_APP_URL, { method: "GET" });
+    if(!res.ok) throw new Error("http " + res.status);
+    const data = await res.json();
+    CATEGORIES.forEach(c => { cache[c.id] = Array.isArray(data[c.id]) ? data[c.id] : []; });
+    lastSyncOk = true;
+    setStatus("");
+    render();
+  }catch(e){
+    lastSyncOk = false;
+    setStatus("Sem conexão com a planilha agora. Mostrando os últimos dados carregados.", true);
+  }
+}
+
+async function pushRemote(){
+  try{
+    await fetch(WEB_APP_URL, {
+      method: "POST",
+      body: JSON.stringify(cache)
+    });
+    lastSyncOk = true;
+  }catch(e){
+    lastSyncOk = false;
+    setStatus("Não consegui salvar agora. Confira sua internet e tente de novo.", true);
+  }
+}
+
+function openSheet(editEntry){
+  errorMsg.textContent = "";
+  exerciseInput.classList.remove("error");
+  document.getElementById("sheetCat").textContent = catName(activeCat);
+  if(editEntry){
+    editingId = editEntry.id;
+    document.getElementById("sheetTitle").textContent = "Editar exercício";
+    exerciseInput.value = editEntry.name;
+    wRafaelInput.value = editEntry.rafael || "";
+    wAmandaInput.value = editEntry.amanda || "";
+    deleteBtn.style.display = "block";
+  } else {
+    editingId = null;
+    document.getElementById("sheetTitle").textContent = "Novo exercício";
+    exerciseInput.value = "";
+    wRafaelInput.value = "";
+    wAmandaInput.value = "";
+    deleteBtn.style.display = "none";
+  }
+  backdrop.classList.add("open");
+  sheet.classList.add("open");
+  setTimeout(()=>exerciseInput.focus(), 250);
+}
+function closeSheet(){
+  backdrop.classList.remove("open");
+  sheet.classList.remove("open");
+}
+
+document.getElementById("openBtn").onclick = () => openSheet(null);
+document.getElementById("cancelBtn").onclick = closeSheet;
+backdrop.onclick = closeSheet;
+
+saveBtn.onclick = async () => {
+  const name = exerciseInput.value.trim();
+  if(!name){
+    exerciseInput.classList.add("error");
+    errorMsg.textContent = "Digite o nome do exercício.";
+    exerciseInput.focus();
+    return;
+  }
+  if(isDuplicate(name, editingId)){
+    exerciseInput.classList.add("error");
+    errorMsg.textContent = "Já existe um exercício com esse nome nesse treino.";
+    exerciseInput.focus();
+    return;
+  }
+  exerciseInput.classList.remove("error");
+  const rafael = wRafaelInput.value.trim();
+  const amanda = wAmandaInput.value.trim();
+  if(editingId){
+    const ex = cache[activeCat].find(e => e.id === editingId);
+    ex.name = name; ex.rafael = rafael; ex.amanda = amanda;
+  } else {
+    cache[activeCat].unshift({
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+      name, rafael, amanda
+    });
+  }
+  saveBtn.disabled = true;
+  setStatus("Salvando…");
+  render();
+  closeSheet();
+  await pushRemote();
+  saveBtn.disabled = false;
+  setStatus(lastSyncOk ? "" : "Não consegui salvar agora. Confira sua internet e tente de novo.", !lastSyncOk);
+};
+
+deleteBtn.onclick = async () => {
+  cache[activeCat] = cache[activeCat].filter(e => e.id !== editingId);
+  setStatus("Salvando…");
+  render();
+  closeSheet();
+  await pushRemote();
+  setStatus(lastSyncOk ? "" : "Não consegui salvar agora. Confira sua internet e tente de novo.", !lastSyncOk);
+};
+
+function renderTabs(){
+  tabsEl.innerHTML = "";
+  CATEGORIES.forEach(c => {
+    const el = document.createElement("button");
+    el.className = "tab" + (c.id === activeCat ? " active" : "");
+    el.textContent = c.name;
+    el.onclick = () => { activeCat = c.id; render(); };
+    tabsEl.appendChild(el);
+  });
+}
+
+function render(){
+  renderTabs();
+  const list = cache[activeCat];
+  if(list.length === 0){
+    listEl.innerHTML = '<div class="empty">Nenhum exercício em ' + escapeHtml(catName(activeCat)) + ' ainda.<br>Toque em + para adicionar.</div>';
+    return;
+  }
+  listEl.innerHTML = "";
+  list.forEach(e => {
+    const row = document.createElement("div");
+    row.className = "entry";
+    row.innerHTML = `
+      <div class="entry-exercise">${escapeHtml(e.name)}</div>
+      <div class="weights">
+        <div class="weight-item rafael">Rafael<br><b>${e.rafael ? escapeHtml(e.rafael) + " kg" : "—"}</b></div>
+        <div class="weight-item amanda">Amanda<br><b>${e.amanda ? escapeHtml(e.amanda) + " kg" : "—"}</b></div>
+      </div>
+    `;
+    row.onclick = () => openSheet(e);
+    listEl.appendChild(row);
+  });
+}
+
+function escapeHtml(s){
+  const d = document.createElement("div");
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+render();
+setStatus("Carregando…");
+fetchRemote();
+setInterval(fetchRemote, POLL_MS);
+document.addEventListener("visibilitychange", () => { if(!document.hidden) fetchRemote(); });
+</script>
+</body>
+</html>
