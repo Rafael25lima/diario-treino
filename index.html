@@ -9,7 +9,9 @@
 <meta name="apple-mobile-web-app-title" content="Diário de Treino">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#3D5A80">
-<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Di%C3%A1rio%20de%20Treino%22%2C%22short_name%22%3A%22Treino%22%2C%22display%22%3A%22standalone%22%2C%22start_url%22%3A%22.%2F%22%2C%22background_color%22%3A%22%23F1ECE1%22%2C%22theme_color%22%3A%22%233D5A80%22%7D">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
 <style>
   :root{
     --paper:#F1ECE1; --paper-line:#DCD3BE; --card:#FFFFFF;
@@ -61,6 +63,7 @@
     background:var(--steel); color:#fff; border:none; font-size:1.8rem;
     box-shadow:0 6px 16px rgba(0,0,0,.25); cursor:pointer; z-index:10;
   }
+  .fab:disabled{ opacity:.5; cursor:not-allowed; }
   .sheet-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,.35); display:none; z-index:20; }
   .sheet-backdrop.open{ display:block; }
   .sheet{
@@ -89,20 +92,87 @@
   .btn-primary:disabled{ opacity:.6; }
   .btn-ghost{ background:transparent; color:var(--ink-soft); border:1px solid var(--paper-line); }
   .btn-danger{ background:transparent; color:var(--rust); border:1px solid var(--rust); flex:none; padding:12px 16px; }
+
+  .attendance{ max-width:520px; margin:16px auto 0; padding:0 16px; }
+  .att-card{ background:var(--card); border:1px solid var(--paper-line); border-radius:12px; padding:14px; }
+  .att-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+  .person-tabs{ display:flex; gap:6px; }
+  .person-tab{
+    padding:6px 12px; border-radius:999px; font-size:.82rem; cursor:pointer;
+    border:1px solid var(--paper-line); background:var(--paper); color:var(--ink-soft);
+  }
+  .person-tab.active.rafael{ background:var(--rafael); border-color:var(--rafael); color:#fff; }
+  .person-tab.active.amanda{ background:var(--amanda); border-color:var(--amanda); color:#fff; }
+  .week-nav{ display:flex; align-items:center; gap:8px; }
+  .week-nav button{
+    border:none; background:none; color:var(--ink-soft); font-size:1.1rem; cursor:pointer; padding:2px 4px;
+  }
+  .week-label{ font-size:.75rem; color:var(--ink-soft); white-space:nowrap; }
+  .week-days{ display:flex; gap:6px; justify-content:space-between; }
+  .day-cell{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:4px;
+    padding:8px 2px; border-radius:10px; cursor:pointer; border:1px solid transparent;
+  }
+  .day-cell .dow{ font-size:.68rem; color:var(--ink-soft); }
+  .day-cell .num{
+    width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:.88rem; border:1px solid var(--paper-line); background:var(--paper);
+  }
+  .day-cell.today .num{ border-color:var(--steel); }
+  .day-cell.marked.rafael .num{ background:var(--rafael); border-color:var(--rafael); color:#fff; }
+  .day-cell.marked.amanda .num{ background:var(--amanda); border-color:var(--amanda); color:#fff; }
+  .month-count{ margin-top:10px; font-size:.8rem; color:var(--ink-soft); text-align:center; }
+  .month-count b{ color:var(--ink); }
+  .delta{ font-size:.72rem; margin-top:2px; }
+  .delta.up{ color:#3F7D4F; }
+  .delta.down{ color:var(--rust); }
+  .cat-pills{ display:flex; flex-direction:column; gap:8px; margin:4px 0 4px; }
+  .cat-row{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 14px; border-radius:10px; border:1px solid var(--paper-line);
+    background:var(--card); cursor:pointer; font-size:.95rem;
+  }
+  .cat-row.active{ border-color:var(--steel); background:var(--steel); color:#fff; }
+  .cat-row .check{ font-size:1rem; }
 </style>
 </head>
 <body>
 <header>
   <h1>Diário de Treino</h1>
-  <p>Rafael e Amanda, sincronizado nos dois aparelhos</p>
   <div class="status" id="status"></div>
   <div class="tabs" id="tabs"></div>
 </header>
+<section class="attendance">
+  <div class="att-card">
+    <div class="att-top">
+      <div class="person-tabs" id="personTabs"></div>
+      <div class="week-nav">
+        <button id="weekPrev" aria-label="Semana anterior">‹</button>
+        <span class="week-label" id="weekLabel"></span>
+        <button id="weekNext" aria-label="Próxima semana">›</button>
+      </div>
+    </div>
+    <div class="week-days" id="weekDays"></div>
+    <div class="month-count" id="monthCount"></div>
+  </div>
+</section>
+
+<div class="sheet-backdrop" id="attBackdrop"></div>
+<div class="sheet" id="attSheet">
+  <h2 id="attSheetTitle">Treino do dia</h2>
+  <div class="cat-name" id="attSheetDate"></div>
+  <div class="cat-pills" id="attCatPills"></div>
+  <div class="sheet-actions">
+    <button class="btn-danger" id="attRemoveBtn" style="display:none;">Remover</button>
+    <button class="btn btn-ghost" id="attCancelBtn">Cancelar</button>
+    <button class="btn btn-primary" id="attSaveBtn">Salvar</button>
+  </div>
+</div>
 <main>
   <div id="list"></div>
 </main>
 
-<button class="fab" id="openBtn" aria-label="Adicionar exercício">+</button>
+<button class="fab" id="openBtn" aria-label="Adicionar exercício" disabled>+</button>
 
 <div class="sheet-backdrop" id="backdrop"></div>
 <div class="sheet" id="sheet">
@@ -142,9 +212,35 @@ const CATEGORIES = [
 
 let cache = {};
 CATEGORIES.forEach(c => cache[c.id] = []);
+cache._attendance = { rafael: {}, amanda: {} };
+let attEditingDate = null;
+let attSelectedCats = new Set();
 let activeCat = CATEGORIES[0].id;
 let editingId = null;
 let lastSyncOk = false;
+let activePerson = "rafael";
+let weekStart = startOfWeek(new Date());
+let initialLoadDone = false;
+let everHadData = false;
+
+function hasAnyData(){
+  const hasExercise = CATEGORIES.some(c => cache[c.id].length > 0);
+  const hasAtt = Object.keys(cache._attendance.rafael).length > 0 || Object.keys(cache._attendance.amanda).length > 0;
+  return hasExercise || hasAtt;
+}
+
+function startOfWeek(d){
+  const r = new Date(d);
+  r.setHours(0,0,0,0);
+  r.setDate(r.getDate() - r.getDay());
+  return r;
+}
+function dateKey(d){
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+}
+function sameDay(a,b){
+  return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
+}
 
 const tabsEl = document.getElementById("tabs");
 const listEl = document.getElementById("list");
@@ -157,6 +253,26 @@ const wAmandaInput = document.getElementById("wAmanda");
 const errorMsg = document.getElementById("errorMsg");
 const deleteBtn = document.getElementById("deleteBtn");
 const saveBtn = document.getElementById("saveBtn");
+const personTabsEl = document.getElementById("personTabs");
+const weekDaysEl = document.getElementById("weekDays");
+const weekLabelEl = document.getElementById("weekLabel");
+const monthCountEl = document.getElementById("monthCount");
+const attBackdrop = document.getElementById("attBackdrop");
+const attSheet = document.getElementById("attSheet");
+
+function catShort(id){
+  return { "costas-biceps":"Costas/Bíceps", "ombro-triceps":"Ombro/Tríceps", "perna":"Perna", "gluteo":"Glúteo", "peito":"Peito" }[id] || id;
+}
+
+function normalizePersonAtt(v){
+  if(Array.isArray(v)){
+    const obj = {};
+    v.forEach(dateStr => { obj[dateStr] = []; });
+    return obj;
+  }
+  if(v && typeof v === "object") return v;
+  return {};
+}
 
 function catName(id){ return CATEGORIES.find(c => c.id === id).name; }
 function normalize(s){ return s.trim().toLowerCase(); }
@@ -177,9 +293,18 @@ async function fetchRemote(){
     if(!res.ok) throw new Error("http " + res.status);
     const data = await res.json();
     CATEGORIES.forEach(c => { cache[c.id] = Array.isArray(data[c.id]) ? data[c.id] : []; });
+    const att = data._attendance || {};
+    cache._attendance = {
+      rafael: normalizePersonAtt(att.rafael),
+      amanda: normalizePersonAtt(att.amanda)
+    };
     lastSyncOk = true;
+    initialLoadDone = true;
+    if(hasAnyData()) everHadData = true;
+    openBtn.disabled = false;
     setStatus("");
     render();
+    renderAttendance();
   }catch(e){
     lastSyncOk = false;
     setStatus("Sem conexão com a planilha agora. Mostrando os últimos dados carregados.", true);
@@ -187,6 +312,14 @@ async function fetchRemote(){
 }
 
 async function pushRemote(){
+  if(!initialLoadDone){
+    setStatus("Ainda carregando os dados — aguarde um instante antes de editar.", true);
+    return;
+  }
+  if(everHadData && !hasAnyData()){
+    setStatus("Ação bloqueada por segurança: isso apagaria todos os dados. Recarregue a página e tente de novo.", true);
+    return;
+  }
   try{
     await fetch(WEB_APP_URL, {
       method: "POST",
@@ -248,15 +381,15 @@ saveBtn.onclick = async () => {
   exerciseInput.classList.remove("error");
   const rafael = wRafaelInput.value.trim();
   const amanda = wAmandaInput.value.trim();
+  let ex;
   if(editingId){
-    const ex = cache[activeCat].find(e => e.id === editingId);
+    ex = cache[activeCat].find(e => e.id === editingId);
     ex.name = name; ex.rafael = rafael; ex.amanda = amanda;
   } else {
-    cache[activeCat].unshift({
-      id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
-      name, rafael, amanda
-    });
+    ex = { id: Date.now().toString(36) + Math.random().toString(36).slice(2,6), name, rafael, amanda, history: [] };
+    cache[activeCat].unshift(ex);
   }
+  recordHistory(ex);
   saveBtn.disabled = true;
   setStatus("Salvando…");
   render();
@@ -274,6 +407,23 @@ deleteBtn.onclick = async () => {
   await pushRemote();
   setStatus(lastSyncOk ? "" : "Não consegui salvar agora. Confira sua internet e tente de novo.", !lastSyncOk);
 };
+
+function recordHistory(ex){
+  const today = dateKey(new Date());
+  if(!Array.isArray(ex.history)) ex.history = [];
+  const todayEntry = ex.history.find(h => h.date === today);
+  if(todayEntry){ todayEntry.rafael = ex.rafael; todayEntry.amanda = ex.amanda; }
+  else ex.history.push({date: today, rafael: ex.rafael, amanda: ex.amanda});
+}
+
+function weightDelta(ex, person){
+  if(!Array.isArray(ex.history) || ex.history.length < 2) return null;
+  const sorted = [...ex.history].sort((a,b)=> a.date.localeCompare(b.date));
+  const curr = parseFloat(sorted[sorted.length-1][person]);
+  const prev = parseFloat(sorted[sorted.length-2][person]);
+  if(isNaN(curr) || isNaN(prev) || curr === prev) return null;
+  return curr - prev;
+}
 
 function renderTabs(){
   tabsEl.innerHTML = "";
@@ -297,11 +447,15 @@ function render(){
   list.forEach(e => {
     const row = document.createElement("div");
     row.className = "entry";
+    const dR = weightDelta(e, "rafael");
+    const dA = weightDelta(e, "amanda");
+    const deltaHtml = (d) => d === null ? "" :
+      `<div class="delta ${d>0?"up":"down"}">${d>0?"+":""}${d}kg</div>`;
     row.innerHTML = `
       <div class="entry-exercise">${escapeHtml(e.name)}</div>
       <div class="weights">
-        <div class="weight-item rafael">Rafael<br><b>${e.rafael ? escapeHtml(e.rafael) + " kg" : "—"}</b></div>
-        <div class="weight-item amanda">Amanda<br><b>${e.amanda ? escapeHtml(e.amanda) + " kg" : "—"}</b></div>
+        <div class="weight-item rafael">Rafael<br><b>${e.rafael ? escapeHtml(e.rafael) + " kg" : "—"}</b>${deltaHtml(dR)}</div>
+        <div class="weight-item amanda">Amanda<br><b>${e.amanda ? escapeHtml(e.amanda) + " kg" : "—"}</b>${deltaHtml(dA)}</div>
       </div>
     `;
     row.onclick = () => openSheet(e);
@@ -315,7 +469,117 @@ function escapeHtml(s){
   return d.innerHTML;
 }
 
+function renderPersonTabs(){
+  personTabsEl.innerHTML = "";
+  [["rafael","Rafael"],["amanda","Amanda"]].forEach(([id,label]) => {
+    const el = document.createElement("button");
+    el.className = "person-tab " + id + (activePerson === id ? " active" : "");
+    el.textContent = label;
+    el.onclick = () => { activePerson = id; renderAttendance(); };
+    personTabsEl.appendChild(el);
+  });
+}
+
+function openAttSheet(d){
+  attEditingDate = dateKey(d);
+  const existing = cache._attendance[activePerson][attEditingDate];
+  attSelectedCats = new Set(existing || []);
+  document.getElementById("attSheetTitle").textContent = "Treino de " + (activePerson==="rafael"?"Rafael":"Amanda");
+  document.getElementById("attSheetDate").textContent = d.toLocaleDateString("pt-BR", {weekday:"long", day:"2-digit", month:"long"});
+  renderAttCatPills();
+  document.getElementById("attRemoveBtn").style.display = existing ? "block" : "none";
+  attBackdrop.classList.add("open");
+  attSheet.classList.add("open");
+}
+function closeAttSheet(){
+  attBackdrop.classList.remove("open");
+  attSheet.classList.remove("open");
+}
+function renderAttCatPills(){
+  const el = document.getElementById("attCatPills");
+  el.innerHTML = "";
+  CATEGORIES.forEach(c => {
+    const active = attSelectedCats.has(c.id);
+    const row = document.createElement("div");
+    row.className = "cat-row" + (active ? " active" : "");
+    row.innerHTML = `<span>${escapeHtml(c.name)}</span><span class="check">${active ? "✓" : ""}</span>`;
+    row.onclick = () => {
+      if(active) attSelectedCats.delete(c.id);
+      else attSelectedCats.add(c.id);
+      renderAttCatPills();
+    };
+    el.appendChild(row);
+  });
+}
+document.getElementById("attCancelBtn").onclick = closeAttSheet;
+attBackdrop.onclick = closeAttSheet;
+document.getElementById("attSaveBtn").onclick = async () => {
+  if(attSelectedCats.size === 0) delete cache._attendance[activePerson][attEditingDate];
+  else cache._attendance[activePerson][attEditingDate] = Array.from(attSelectedCats);
+  closeAttSheet();
+  renderAttendance();
+  await pushRemote();
+};
+document.getElementById("attRemoveBtn").onclick = async () => {
+  delete cache._attendance[activePerson][attEditingDate];
+  closeAttSheet();
+  renderAttendance();
+  await pushRemote();
+};
+
+function renderAttendance(){
+  renderPersonTabs();
+  const DOW = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+  const today = new Date();
+  const days = [];
+  for(let i=0;i<7;i++){
+    const d = new Date(weekStart);
+    d.setDate(d.getDate()+i);
+    days.push(d);
+  }
+  const endOfWeek = days[6];
+  const sameMonth = weekStart.getMonth() === endOfWeek.getMonth();
+  weekLabelEl.textContent = sameMonth
+    ? weekStart.getDate() + "–" + endOfWeek.getDate() + " " + endOfWeek.toLocaleDateString("pt-BR",{month:"short"})
+    : weekStart.getDate() + " " + weekStart.toLocaleDateString("pt-BR",{month:"short"}) + " – " + endOfWeek.getDate() + " " + endOfWeek.toLocaleDateString("pt-BR",{month:"short"});
+
+  weekDaysEl.innerHTML = "";
+  days.forEach(d => {
+    const key = dateKey(d);
+    const cats = cache._attendance[activePerson][key];
+    const marked = Object.prototype.hasOwnProperty.call(cache._attendance[activePerson], key);
+    const cell = document.createElement("div");
+    cell.className = "day-cell" + (sameDay(d,today) ? " today" : "") + (marked ? " marked " + activePerson : "");
+    cell.title = marked ? (Array.isArray(cats) && cats.length ? cats.map(catShort).join(", ") : "Treino registrado") : "";
+    cell.innerHTML = `<div class="dow">${DOW[d.getDay()]}</div><div class="num">${d.getDate()}</div>`;
+    cell.onclick = () => openAttSheet(d);
+    weekDaysEl.appendChild(cell);
+  });
+
+  const refMonth = endOfWeek.getMonth(), refYear = endOfWeek.getFullYear();
+  const att = cache._attendance[activePerson];
+  const count = Object.keys(att).filter(k => {
+    const [y,m] = k.split("-").map(Number);
+    return y === refYear && m === refMonth + 1;
+  }).length;
+  const monthName = endOfWeek.toLocaleDateString("pt-BR",{month:"long"});
+  const personLabel = activePerson === "rafael" ? "Rafael" : "Amanda";
+  monthCountEl.innerHTML = personLabel + ": <b>" + count + " dia" + (count===1?"":"s") + "</b> em " + monthName;
+}
+
+document.getElementById("weekPrev").onclick = () => {
+  weekStart = new Date(weekStart);
+  weekStart.setDate(weekStart.getDate()-7);
+  renderAttendance();
+};
+document.getElementById("weekNext").onclick = () => {
+  weekStart = new Date(weekStart);
+  weekStart.setDate(weekStart.getDate()+7);
+  renderAttendance();
+};
+
 render();
+renderAttendance();
 setStatus("Carregando…");
 fetchRemote();
 setInterval(fetchRemote, POLL_MS);
