@@ -45,6 +45,7 @@
     color:var(--ink-soft); font-size:.85rem; cursor:pointer; white-space:nowrap;
   }
   .tab.active{ background:var(--steel); border-color:var(--steel); color:#fff; }
+  .tab-action{ border-style:dashed; color:var(--steel); }
   main{ max-width:520px; margin:0 auto; padding:16px 16px 100px; }
   .entry{
     background:var(--card); border:1px solid var(--paper-line);
@@ -134,6 +135,40 @@
   }
   .cat-row.active{ border-color:var(--steel); background:var(--steel); color:#fff; }
   .cat-row .check{ font-size:1rem; }
+  .link-btn{ display:block; margin:10px auto 0; background:none; border:none; color:var(--steel); font-size:.82rem; cursor:pointer; text-decoration:underline; }
+  .hist-month-nav{ display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:10px; }
+  .hist-month-nav button{ border:none; background:none; color:var(--ink-soft); font-size:1.1rem; cursor:pointer; }
+  .hist-month-nav span{ font-weight:600; text-transform:capitalize; }
+  .hist-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:3px; margin-bottom:10px; max-width:280px; margin-left:auto; margin-right:auto; }
+  .hist-day{ height:26px; display:flex; align-items:center; justify-content:center; border-radius:6px; font-size:.68rem; background:var(--paper); color:var(--ink-soft); }
+  .hist-day.pad{ visibility:hidden; }
+  .hist-day.marked.rafael{ background:var(--rafael); color:#fff; }
+  .hist-day.marked.amanda{ background:var(--amanda); color:#fff; }
+  .hist-total{ text-align:center; font-size:.85rem; margin-bottom:10px; }
+  .hist-section-title{ font-size:.75rem; color:var(--ink-soft); margin:14px 0 6px; text-transform:uppercase; letter-spacing:.03em; }
+  .hist-cat-row{ display:flex; justify-content:space-between; font-size:.88rem; padding:7px 0; border-bottom:1px solid var(--paper-line); }
+  .hist-group{ border:1px solid var(--paper-line); border-radius:10px; margin-bottom:10px; overflow:hidden; }
+  .hist-group-header{
+    padding:9px 12px; background:var(--card); font-size:.85rem; font-weight:600;
+  }
+  .hist-ex-row{ padding:8px 12px; border-top:1px solid var(--paper-line); font-size:.82rem; background:var(--card); }
+  .hist-ex-name{ font-weight:600; }
+  .hist-ex-progress{ margin-top:2px; color:var(--ink-soft); }
+  .hist-empty-note{ padding:8px 12px; border-top:1px solid var(--paper-line); font-size:.78rem; color:var(--ink-soft); background:var(--card); }
+
+  .meas-table{ width:100%; border-collapse:collapse; font-size:.85rem; margin-bottom:12px; }
+  .meas-table th{ text-align:center; padding:8px 4px; font-weight:600; border-bottom:1px solid var(--paper-line); }
+  .meas-table th:first-child{ text-align:left; font-weight:500; color:var(--ink-soft); }
+  .meas-table th.rafael{ color:var(--rafael); }
+  .meas-table th.amanda{ color:var(--amanda); }
+  .meas-table td{ text-align:center; padding:7px 4px; border-bottom:1px solid var(--paper-line); }
+  .meas-table td:first-child{ text-align:left; color:var(--ink-soft); }
+  .meas-table tr.total td{ font-weight:600; background:var(--card); }
+  .meas-delta{ display:block; font-size:.68rem; color:var(--ink-soft); font-weight:400; }
+  .meas-delta.up{ color:var(--rust); }
+  .meas-delta.down{ color:#3F7D4F; }
+  .meas-person-toggle{ display:flex; gap:6px; margin-bottom:12px; }
+  .meas-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
 </style>
 </head>
 <body>
@@ -156,6 +191,62 @@
     <div class="month-count" id="monthCount"></div>
   </div>
 </section>
+
+<div class="sheet-backdrop" id="measBackdrop"></div>
+<div class="sheet" id="measSheet">
+  <h2>Medidas</h2>
+  <div class="hist-month-nav">
+    <button id="measMonthPrev">‹</button>
+    <span id="measMonthLabel"></span>
+    <button id="measMonthNext">›</button>
+  </div>
+  <table class="meas-table" id="measTable"></table>
+  <button class="btn btn-primary" id="openMeasEntryBtn" style="width:100%;">Registrar medidas desse mês</button>
+  <div class="sheet-actions" style="margin-top:16px;">
+    <button class="btn btn-ghost" id="measCloseBtn" style="flex:1;">Fechar</button>
+  </div>
+</div>
+
+<div class="sheet-backdrop" id="measEntryBackdrop"></div>
+<div class="sheet" id="measEntrySheet">
+  <h2>Registrar medidas</h2>
+  <div class="cat-name" id="measEntryMonthLabel"></div>
+  <div class="meas-person-toggle" id="measEntryPersonToggle"></div>
+  <div class="meas-grid">
+    <div><label for="measPeso">Peso (kg)</label><input id="measPeso" type="number" inputmode="decimal"></div>
+    <div><label for="measTriceps">Tríceps (cm)</label><input id="measTriceps" type="number" inputmode="decimal"></div>
+    <div><label for="measSubescapular">Subescapular (cm)</label><input id="measSubescapular" type="number" inputmode="decimal"></div>
+    <div><label for="measAxilar">Axilar média (cm)</label><input id="measAxilar" type="number" inputmode="decimal"></div>
+    <div><label for="measPeitoral">Peitoral (cm)</label><input id="measPeitoral" type="number" inputmode="decimal"></div>
+    <div><label for="measAbdominal">Abdominal (cm)</label><input id="measAbdominal" type="number" inputmode="decimal"></div>
+    <div><label for="measSuprailiaca">Supra-ilíaca (cm)</label><input id="measSuprailiaca" type="number" inputmode="decimal"></div>
+    <div><label for="measCoxa">Coxa (cm)</label><input id="measCoxa" type="number" inputmode="decimal"></div>
+  </div>
+  <div class="sheet-actions">
+    <button class="btn btn-ghost" id="measEntryCancelBtn">Cancelar</button>
+    <button class="btn btn-primary" id="measEntrySaveBtn">Salvar</button>
+  </div>
+</div>
+
+<div class="sheet-backdrop" id="histBackdrop"></div>
+<div class="sheet" id="histSheet">
+  <h2>Histórico mensal</h2>
+  <div class="person-tabs" id="histPersonTabs" style="margin-bottom:12px;"></div>
+  <div class="hist-month-nav">
+    <button id="histMonthPrev">‹</button>
+    <span id="histMonthLabel"></span>
+    <button id="histMonthNext">›</button>
+  </div>
+  <div class="hist-grid" id="histGrid"></div>
+  <div class="hist-total" id="histTotal"></div>
+  <div class="hist-section-title">Treinos feitos</div>
+  <div id="histCatList"></div>
+  <div class="hist-section-title">Progresso de carga</div>
+  <div id="histGroups"></div>
+  <div class="sheet-actions" style="margin-top:16px;">
+    <button class="btn btn-ghost" id="histCloseBtn" style="flex:1;">Fechar</button>
+  </div>
+</div>
 
 <div class="sheet-backdrop" id="attBackdrop"></div>
 <div class="sheet" id="attSheet">
@@ -213,6 +304,55 @@ const CATEGORIES = [
 let cache = {};
 CATEGORIES.forEach(c => cache[c.id] = []);
 cache._attendance = { rafael: {}, amanda: {} };
+cache._measurements = { rafael: {}, amanda: {} };
+const PERSON_INFO = {
+  rafael: { label: "Rafael", sex: "M", birthdate: "2005-06-25" },
+  amanda: { label: "Amanda", sex: "F", birthdate: "1999-05-14" }
+};
+const MEAS_FIELDS = [
+  { id: "peso", label: "Peso", unit: "kg" },
+  { id: "triceps", label: "Tríceps", unit: "cm" },
+  { id: "subescapular", label: "Subescapular", unit: "cm" },
+  { id: "axilar", label: "Axilar média", unit: "cm" },
+  { id: "peitoral", label: "Peitoral", unit: "cm" },
+  { id: "abdominal", label: "Abdominal", unit: "cm" },
+  { id: "suprailiaca", label: "Supra-ilíaca", unit: "cm" },
+  { id: "coxa", label: "Coxa", unit: "cm" }
+];
+function ageOf(person, refDate){
+  const ref = refDate || new Date();
+  const [by,bm,bd] = PERSON_INFO[person].birthdate.split("-").map(Number);
+  let age = ref.getFullYear() - by;
+  if(ref.getMonth()+1 < bm || (ref.getMonth()+1 === bm && ref.getDate() < bd)) age--;
+  return age;
+}
+function bodyFatPercent(person, m){
+  const skinfoldIds = ["triceps","subescapular","axilar","peitoral","abdominal","suprailiaca","coxa"];
+  const values = skinfoldIds.map(id => parseFloat(m[id]));
+  if(values.some(v => isNaN(v))) return null;
+  const sumMm = values.reduce((a,b)=>a+b,0) * 10;
+  const age = ageOf(person);
+  let density;
+  if(PERSON_INFO[person].sex === "M"){
+    density = 1.112 - 0.00043499*sumMm + 0.00000055*sumMm*sumMm - 0.00028826*age;
+  } else {
+    density = 1.097 - 0.00046971*sumMm + 0.00000056*sumMm*sumMm - 0.00012828*age;
+  }
+  const pct = (495/density) - 450;
+  return Math.round(pct*10)/10;
+}
+function monthKeyOf(d){ return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0"); }
+function maybeShowMonthlySummary(){
+  const curKey = monthKeyOf(new Date());
+  let lastShown = null;
+  try{ lastShown = localStorage.getItem("lastSummaryMonthShown"); }catch(e){}
+  if(lastShown === curKey) return;
+  try{ localStorage.setItem("lastSummaryMonthShown", curKey); }catch(e){}
+  const prev = new Date();
+  prev.setDate(1);
+  prev.setMonth(prev.getMonth()-1);
+  openHistSheetAction(prev);
+}
 let attEditingDate = null;
 let attSelectedCats = new Set();
 let activeCat = CATEGORIES[0].id;
@@ -226,7 +366,8 @@ let everHadData = false;
 function hasAnyData(){
   const hasExercise = CATEGORIES.some(c => cache[c.id].length > 0);
   const hasAtt = Object.keys(cache._attendance.rafael).length > 0 || Object.keys(cache._attendance.amanda).length > 0;
-  return hasExercise || hasAtt;
+  const hasMeas = Object.keys(cache._measurements.rafael).length > 0 || Object.keys(cache._measurements.amanda).length > 0;
+  return hasExercise || hasAtt || hasMeas;
 }
 
 function startOfWeek(d){
@@ -298,6 +439,11 @@ async function fetchRemote(){
       rafael: normalizePersonAtt(att.rafael),
       amanda: normalizePersonAtt(att.amanda)
     };
+    const meas = data._measurements || {};
+    cache._measurements = {
+      rafael: (meas.rafael && typeof meas.rafael === "object") ? meas.rafael : {},
+      amanda: (meas.amanda && typeof meas.amanda === "object") ? meas.amanda : {}
+    };
     lastSyncOk = true;
     initialLoadDone = true;
     if(hasAnyData()) everHadData = true;
@@ -305,6 +451,8 @@ async function fetchRemote(){
     setStatus("");
     render();
     renderAttendance();
+    if(backfillMissingHistory()) pushRemote();
+    maybeShowMonthlySummary();
   }catch(e){
     lastSyncOk = false;
     setStatus("Sem conexão com a planilha agora. Mostrando os últimos dados carregados.", true);
@@ -416,6 +564,19 @@ function recordHistory(ex){
   else ex.history.push({date: today, rafael: ex.rafael, amanda: ex.amanda});
 }
 
+function backfillMissingHistory(){
+  let changed = false;
+  CATEGORIES.forEach(c => {
+    cache[c.id].forEach(ex => {
+      if(!Array.isArray(ex.history) || ex.history.length === 0){
+        recordHistory(ex);
+        changed = true;
+      }
+    });
+  });
+  return changed;
+}
+
 function weightDelta(ex, person){
   if(!Array.isArray(ex.history) || ex.history.length < 2) return null;
   const sorted = [...ex.history].sort((a,b)=> a.date.localeCompare(b.date));
@@ -434,6 +595,16 @@ function renderTabs(){
     el.onclick = () => { activeCat = c.id; render(); };
     tabsEl.appendChild(el);
   });
+  const histBtn = document.createElement("button");
+  histBtn.className = "tab tab-action";
+  histBtn.textContent = "Histórico";
+  histBtn.onclick = () => openHistSheetAction();
+  tabsEl.appendChild(histBtn);
+  const measBtn = document.createElement("button");
+  measBtn.className = "tab tab-action";
+  measBtn.textContent = "Medidas";
+  measBtn.onclick = () => openMeasSheetAction();
+  tabsEl.appendChild(measBtn);
 }
 
 function render(){
@@ -566,6 +737,240 @@ function renderAttendance(){
   const personLabel = activePerson === "rafael" ? "Rafael" : "Amanda";
   monthCountEl.innerHTML = personLabel + ": <b>" + count + " dia" + (count===1?"":"s") + "</b> em " + monthName;
 }
+
+const histBackdrop = document.getElementById("histBackdrop");
+const histSheet = document.getElementById("histSheet");
+let histPerson = "rafael";
+let histMonth = new Date();
+
+function openHistSheetAction(month){
+  histPerson = activePerson;
+  histMonth = month || new Date();
+  renderHist();
+  histBackdrop.classList.add("open");
+  histSheet.classList.add("open");
+}
+function closeHist(){
+  histBackdrop.classList.remove("open");
+  histSheet.classList.remove("open");
+}
+document.getElementById("histCloseBtn").onclick = closeHist;
+histBackdrop.onclick = closeHist;
+document.getElementById("histMonthPrev").onclick = () => { histMonth.setMonth(histMonth.getMonth()-1); renderHist(); };
+document.getElementById("histMonthNext").onclick = () => { histMonth.setMonth(histMonth.getMonth()+1); renderHist(); };
+
+function renderHist(){
+  const tabsHolder = document.getElementById("histPersonTabs");
+  tabsHolder.innerHTML = "";
+  [["rafael","Rafael"],["amanda","Amanda"]].forEach(([id,label]) => {
+    const b = document.createElement("button");
+    b.className = "person-tab " + id + (histPerson === id ? " active" : "");
+    b.textContent = label;
+    b.onclick = () => { histPerson = id; renderHist(); };
+    tabsHolder.appendChild(b);
+  });
+
+  const year = histMonth.getFullYear(), month = histMonth.getMonth();
+  document.getElementById("histMonthLabel").textContent = histMonth.toLocaleDateString("pt-BR",{month:"long", year:"numeric"});
+
+  const grid = document.getElementById("histGrid");
+  grid.innerHTML = "";
+  const firstDay = new Date(year, month, 1);
+  const startPad = firstDay.getDay();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  for(let i=0;i<startPad;i++){
+    const pad = document.createElement("div");
+    pad.className = "hist-day pad";
+    grid.appendChild(pad);
+  }
+  const att = cache._attendance[histPerson];
+  const catCounts = {};
+  CATEGORIES.forEach(c => catCounts[c.id] = 0);
+  let totalDays = 0;
+  const mm = String(month+1).padStart(2,"0");
+  for(let day=1; day<=daysInMonth; day++){
+    const key = year + "-" + mm + "-" + String(day).padStart(2,"0");
+    const marked = Object.prototype.hasOwnProperty.call(att, key);
+    const cell = document.createElement("div");
+    cell.className = "hist-day" + (marked ? " marked " + histPerson : "");
+    cell.textContent = day;
+    grid.appendChild(cell);
+    if(marked){
+      totalDays++;
+      const cats = att[key];
+      if(Array.isArray(cats)) cats.forEach(cid => { if(catCounts[cid] !== undefined) catCounts[cid]++; });
+    }
+  }
+  const monthNameOnly = histMonth.toLocaleDateString("pt-BR",{month:"long"});
+  document.getElementById("histTotal").innerHTML = "<b>" + totalDays + "</b> dia" + (totalDays===1?"":"s") + " treinados em " + monthNameOnly;
+
+  const catListEl = document.getElementById("histCatList");
+  catListEl.innerHTML = "";
+  CATEGORIES.forEach(c => {
+    const row = document.createElement("div");
+    row.className = "hist-cat-row";
+    row.innerHTML = `<span>${escapeHtml(c.name)}</span><span>${catCounts[c.id]}x</span>`;
+    catListEl.appendChild(row);
+  });
+
+  const groupsEl = document.getElementById("histGroups");
+  groupsEl.innerHTML = "";
+  const monthStart = year + "-" + mm + "-01";
+  const monthEnd = year + "-" + mm + "-31";
+  let anyGroup = false;
+  CATEGORIES.forEach(c => {
+    if(catCounts[c.id] === 0) return;
+    anyGroup = true;
+    const group = document.createElement("div");
+    group.className = "hist-group";
+    group.innerHTML = `<div class="hist-group-header">${escapeHtml(c.name)}</div>`;
+    let anyEx = false;
+    cache[c.id].forEach(ex => {
+      if(!Array.isArray(ex.history) || ex.history.length === 0) return;
+      const sorted = [...ex.history].sort((a,b) => a.date.localeCompare(b.date));
+      const inMonth = sorted.filter(h => h.date >= monthStart && h.date <= monthEnd);
+      if(inMonth.length === 0) return;
+      const before = sorted.filter(h => h.date < monthStart);
+      const startEntry = before.length ? before[before.length-1] : inMonth[0];
+      const endEntry = inMonth[inMonth.length-1];
+      const parts = ["rafael","amanda"].map(p => {
+        const sv = parseFloat(startEntry[p]), ev = parseFloat(endEntry[p]);
+        if(isNaN(sv) || isNaN(ev)) return null;
+        const d = Math.round((ev-sv)*10)/10;
+        const label = p === "rafael" ? "Rafael" : "Amanda";
+        if(d === 0) return label + ": " + ev + "kg (sem variação)";
+        return label + ": " + sv + "kg → " + ev + "kg (" + (d>0?"+":"") + d + "kg)";
+      }).filter(Boolean);
+      if(parts.length === 0) return;
+      anyEx = true;
+      const row = document.createElement("div");
+      row.className = "hist-ex-row";
+      row.innerHTML = `<div class="hist-ex-name">${escapeHtml(ex.name)}</div><div class="hist-ex-progress">${parts.join(" &nbsp;|&nbsp; ")}</div>`;
+      group.appendChild(row);
+    });
+    if(!anyEx){
+      const note = document.createElement("div");
+      note.className = "hist-empty-note";
+      note.textContent = "Sem peso registrado nesse treino esse mês.";
+      group.appendChild(note);
+    }
+    groupsEl.appendChild(group);
+  });
+  if(!anyGroup){
+    groupsEl.innerHTML = '<div class="empty" style="padding:16px 0;">Nenhum treino registrado nesse mês ainda.</div>';
+  }
+}
+
+const measBackdrop = document.getElementById("measBackdrop");
+const measSheet = document.getElementById("measSheet");
+const measEntryBackdrop = document.getElementById("measEntryBackdrop");
+const measEntrySheet = document.getElementById("measEntrySheet");
+let measMonth = new Date();
+let measEntryPerson = "rafael";
+
+function openMeasSheetAction(){
+  measMonth = new Date();
+  renderMeas();
+  measBackdrop.classList.add("open");
+  measSheet.classList.add("open");
+}
+function closeMeas(){
+  measBackdrop.classList.remove("open");
+  measSheet.classList.remove("open");
+}
+document.getElementById("measCloseBtn").onclick = closeMeas;
+measBackdrop.onclick = closeMeas;
+document.getElementById("measMonthPrev").onclick = () => { measMonth.setMonth(measMonth.getMonth()-1); renderMeas(); };
+document.getElementById("measMonthNext").onclick = () => { measMonth.setMonth(measMonth.getMonth()+1); renderMeas(); };
+
+function prevRecordedMonth(person, beforeKey){
+  const keys = Object.keys(cache._measurements[person]).filter(k => k < beforeKey).sort();
+  return keys.length ? keys[keys.length-1] : null;
+}
+
+function renderMeas(){
+  document.getElementById("measMonthLabel").textContent = measMonth.toLocaleDateString("pt-BR",{month:"long", year:"numeric"});
+  const key = monthKeyOf(measMonth);
+  const table = document.getElementById("measTable");
+  const rMeas = cache._measurements.rafael[key];
+  const aMeas = cache._measurements.amanda[key];
+  const rPrevKey = prevRecordedMonth("rafael", key);
+  const aPrevKey = prevRecordedMonth("amanda", key);
+  const rPrev = rPrevKey ? cache._measurements.rafael[rPrevKey] : null;
+  const aPrev = aPrevKey ? cache._measurements.amanda[aPrevKey] : null;
+
+  function cell(curr, prev, unit){
+    if(!curr || curr === undefined) return "—";
+    const v = curr;
+    let deltaHtml = "";
+    if(prev){
+      const d = Math.round((parseFloat(v) - parseFloat(prev))*10)/10;
+      if(!isNaN(d) && d !== 0){
+        deltaHtml = `<span class="meas-delta ${d>0?"up":"down"}">${d>0?"+":""}${d}</span>`;
+      }
+    }
+    return escapeHtml(String(v)) + unit + deltaHtml;
+  }
+
+  let rows = "<tr><th></th><th class=\"rafael\">Rafael</th><th class=\"amanda\">Amanda</th></tr>";
+  MEAS_FIELDS.forEach(f => {
+    const rv = rMeas ? rMeas[f.id] : null;
+    const av = aMeas ? aMeas[f.id] : null;
+    const pr = rPrev ? rPrev[f.id] : null;
+    const pa = aPrev ? aPrev[f.id] : null;
+    rows += `<tr><td>${f.label}</td><td>${cell(rv, pr, f.unit)}</td><td>${cell(av, pa, f.unit)}</td></tr>`;
+  });
+  const rFat = rMeas ? bodyFatPercent("rafael", rMeas) : null;
+  const aFat = aMeas ? bodyFatPercent("amanda", aMeas) : null;
+  rows += `<tr class="total"><td>% gordura estimado</td><td>${rFat !== null ? rFat+"%" : "—"}</td><td>${aFat !== null ? aFat+"%" : "—"}</td></tr>`;
+  table.innerHTML = rows;
+}
+
+document.getElementById("openMeasEntryBtn").onclick = () => {
+  openMeasEntry("rafael");
+};
+function openMeasEntry(person){
+  measEntryPerson = person;
+  document.getElementById("measEntryMonthLabel").textContent = measMonth.toLocaleDateString("pt-BR",{month:"long", year:"numeric"});
+  renderMeasEntryToggle();
+  const key = monthKeyOf(measMonth);
+  const existing = cache._measurements[measEntryPerson][key] || {};
+  MEAS_FIELDS.forEach(f => {
+    document.getElementById("meas" + f.id.charAt(0).toUpperCase() + f.id.slice(1)).value = existing[f.id] || "";
+  });
+  measEntryBackdrop.classList.add("open");
+  measEntrySheet.classList.add("open");
+}
+function closeMeasEntry(){
+  measEntryBackdrop.classList.remove("open");
+  measEntrySheet.classList.remove("open");
+}
+function renderMeasEntryToggle(){
+  const el = document.getElementById("measEntryPersonToggle");
+  el.innerHTML = "";
+  [["rafael","Rafael"],["amanda","Amanda"]].forEach(([id,label]) => {
+    const b = document.createElement("button");
+    b.className = "person-tab " + id + (measEntryPerson === id ? " active" : "");
+    b.textContent = label;
+    b.style.flex = "1";
+    b.onclick = () => { openMeasEntry(id); };
+    el.appendChild(b);
+  });
+}
+document.getElementById("measEntryCancelBtn").onclick = closeMeasEntry;
+measEntryBackdrop.onclick = closeMeasEntry;
+document.getElementById("measEntrySaveBtn").onclick = async () => {
+  const key = monthKeyOf(measMonth);
+  const data = {};
+  MEAS_FIELDS.forEach(f => {
+    const v = document.getElementById("meas" + f.id.charAt(0).toUpperCase() + f.id.slice(1)).value.trim();
+    if(v !== "") data[f.id] = v;
+  });
+  cache._measurements[measEntryPerson][key] = data;
+  closeMeasEntry();
+  renderMeas();
+  await pushRemote();
+};
 
 document.getElementById("weekPrev").onclick = () => {
   weekStart = new Date(weekStart);
