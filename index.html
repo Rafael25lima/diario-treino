@@ -214,13 +214,13 @@
   <div class="meas-person-toggle" id="measEntryPersonToggle"></div>
   <div class="meas-grid">
     <div><label for="measPeso">Peso (kg)</label><input id="measPeso" type="number" inputmode="decimal"></div>
-    <div><label for="measTriceps">Tríceps (cm)</label><input id="measTriceps" type="number" inputmode="decimal"></div>
-    <div><label for="measSubescapular">Subescapular (cm)</label><input id="measSubescapular" type="number" inputmode="decimal"></div>
-    <div><label for="measAxilar">Axilar média (cm)</label><input id="measAxilar" type="number" inputmode="decimal"></div>
-    <div><label for="measPeitoral">Peitoral (cm)</label><input id="measPeitoral" type="number" inputmode="decimal"></div>
-    <div><label for="measAbdominal">Abdominal (cm)</label><input id="measAbdominal" type="number" inputmode="decimal"></div>
-    <div><label for="measSuprailiaca">Supra-ilíaca (cm)</label><input id="measSuprailiaca" type="number" inputmode="decimal"></div>
-    <div><label for="measCoxa">Coxa (cm)</label><input id="measCoxa" type="number" inputmode="decimal"></div>
+    <div><label for="measTriceps">Tríceps (mm)</label><input id="measTriceps" type="number" inputmode="decimal"></div>
+    <div><label for="measSubescapular">Subescapular (mm)</label><input id="measSubescapular" type="number" inputmode="decimal"></div>
+    <div><label for="measAxilar">Axilar média (mm)</label><input id="measAxilar" type="number" inputmode="decimal"></div>
+    <div><label for="measPeitoral">Peitoral (mm)</label><input id="measPeitoral" type="number" inputmode="decimal"></div>
+    <div><label for="measAbdominal">Abdominal (mm)</label><input id="measAbdominal" type="number" inputmode="decimal"></div>
+    <div><label for="measSuprailiaca">Supra-ilíaca (mm)</label><input id="measSuprailiaca" type="number" inputmode="decimal"></div>
+    <div><label for="measCoxa">Coxa (mm)</label><input id="measCoxa" type="number" inputmode="decimal"></div>
   </div>
   <div class="sheet-actions">
     <button class="btn btn-ghost" id="measEntryCancelBtn">Cancelar</button>
@@ -311,13 +311,13 @@ const PERSON_INFO = {
 };
 const MEAS_FIELDS = [
   { id: "peso", label: "Peso", unit: "kg" },
-  { id: "triceps", label: "Tríceps", unit: "cm" },
-  { id: "subescapular", label: "Subescapular", unit: "cm" },
-  { id: "axilar", label: "Axilar média", unit: "cm" },
-  { id: "peitoral", label: "Peitoral", unit: "cm" },
-  { id: "abdominal", label: "Abdominal", unit: "cm" },
-  { id: "suprailiaca", label: "Supra-ilíaca", unit: "cm" },
-  { id: "coxa", label: "Coxa", unit: "cm" }
+  { id: "triceps", label: "Tríceps", unit: "mm" },
+  { id: "subescapular", label: "Subescapular", unit: "mm" },
+  { id: "axilar", label: "Axilar média", unit: "mm" },
+  { id: "peitoral", label: "Peitoral", unit: "mm" },
+  { id: "abdominal", label: "Abdominal", unit: "mm" },
+  { id: "suprailiaca", label: "Supra-ilíaca", unit: "mm" },
+  { id: "coxa", label: "Coxa", unit: "mm" }
 ];
 function ageOf(person, refDate){
   const ref = refDate || new Date();
@@ -327,19 +327,19 @@ function ageOf(person, refDate){
   return age;
 }
 function bodyFatPercent(person, m){
-  const skinfoldIds = ["triceps","subescapular","axilar","peitoral","abdominal","suprailiaca","coxa"];
+  const skinfoldIds = ["triceps", "subescapular", "axilar", "peitoral", "abdominal", "suprailiaca", "coxa"];
   const values = skinfoldIds.map(id => parseFloat(m[id]));
-  if(values.some(v => isNaN(v))) return null;
-  const sumMm = values.reduce((a,b)=>a+b,0) * 10;
+  if (values.some(v => isNaN(v))) return null;
+  const sumMm = values.reduce((a, b) => a + b, 0);
   const age = ageOf(person);
   let density;
-  if(PERSON_INFO[person].sex === "M"){
-    density = 1.112 - 0.00043499*sumMm + 0.00000055*sumMm*sumMm - 0.00028826*age;
+  if (PERSON_INFO[person].sex === "M") {
+    density = 1.112 - (0.00043499 * sumMm) + (0.00000055 * sumMm * sumMm) - (0.00028826 * age);
   } else {
-    density = 1.097 - 0.00046971*sumMm + 0.00000056*sumMm*sumMm - 0.00012828*age;
+    density = 1.097 - (0.00046971 * sumMm) + (0.00000056 * sumMm * sumMm) - (0.00012828 * age);
   }
-  const pct = (495/density) - 450;
-  return Math.round(pct*10)/10;
+  const pct = (495 / density) - 450;
+  return Math.round(pct * 10) / 10;
 }
 function monthKeyOf(d){ return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0"); }
 function maybeShowMonthlySummary(){
