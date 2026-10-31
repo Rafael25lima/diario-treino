@@ -139,18 +139,27 @@
   .hist-month-nav{ display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:10px; }
   .hist-month-nav button{ border:none; background:none; color:var(--ink-soft); font-size:1.1rem; cursor:pointer; }
   .hist-month-nav span{ font-weight:600; text-transform:capitalize; }
-  .hist-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:3px; margin-bottom:10px; max-width:280px; margin-left:auto; margin-right:auto; }
-  .hist-day{ height:26px; display:flex; align-items:center; justify-content:center; border-radius:6px; font-size:.68rem; background:var(--paper); color:var(--ink-soft); }
+  .hist-top{ display:flex; gap:12px; align-items:flex-start; margin-bottom:6px; }
+  .hist-left{ flex:1 1 0; min-width:0; }
+  .hist-right{ flex:0 0 56%; min-width:0; }
+  .hist-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:2px; margin-bottom:8px; }
+  .hist-day{ height:23px; display:flex; align-items:center; justify-content:center; border-radius:6px; font-size:.68rem; background:var(--paper); color:var(--ink-soft); }
   .hist-day.pad{ visibility:hidden; }
   .hist-day.marked.rafael{ background:var(--rafael); color:#fff; }
   .hist-day.marked.amanda{ background:var(--amanda); color:#fff; }
-  .hist-total{ text-align:center; font-size:.85rem; margin-bottom:10px; }
-  .hist-section-title{ font-size:.75rem; color:var(--ink-soft); margin:14px 0 6px; text-transform:uppercase; letter-spacing:.03em; }
-  .hist-cat-row{ display:flex; justify-content:space-between; font-size:.88rem; padding:7px 0; border-bottom:1px solid var(--paper-line); }
+  .hist-total{ text-align:center; font-size:.8rem; margin-bottom:4px; }
+  .hist-section-title{ font-size:.72rem; color:var(--ink-soft); margin:14px 0 6px; text-transform:uppercase; letter-spacing:.03em; }
+  .hist-cat-row{ display:flex; justify-content:space-between; gap:6px; font-size:.8rem; padding:6px 0; border-bottom:1px solid var(--paper-line); }
   .hist-group{ border:1px solid var(--paper-line); border-radius:10px; margin-bottom:10px; overflow:hidden; }
   .hist-group-header{
-    padding:9px 12px; background:var(--card); font-size:.85rem; font-weight:600;
+    display:flex; justify-content:space-between; align-items:center; width:100%; border:none; text-align:left; font-family:inherit; color:inherit; cursor:pointer;
+    padding:11px 12px; background:var(--card); font-size:.88rem; font-weight:600;
   }
+  .hist-arrow{ font-size:.75rem; color:var(--ink-soft); transition:transform .2s; }
+  .hist-group.open .hist-arrow{ transform:rotate(180deg); }
+  .hist-group-body{ display:none; }
+  .hist-group.open .hist-group-body{ display:block; }
+  .tab .today-dot{ display:inline-block; width:6px; height:6px; border-radius:50%; background:currentColor; margin-left:6px; vertical-align:middle; opacity:.8; }
   .hist-ex-row{ padding:8px 12px; border-top:1px solid var(--paper-line); font-size:.82rem; background:var(--card); }
   .hist-ex-name{ font-weight:600; }
   .hist-ex-progress{ margin-top:2px; color:var(--ink-soft); }
@@ -214,13 +223,13 @@
   <div class="meas-person-toggle" id="measEntryPersonToggle"></div>
   <div class="meas-grid">
     <div><label for="measPeso">Peso (kg)</label><input id="measPeso" type="number" inputmode="decimal"></div>
-    <div><label for="measTriceps">Tríceps (mm)</label><input id="measTriceps" type="number" inputmode="decimal"></div>
-    <div><label for="measSubescapular">Subescapular (mm)</label><input id="measSubescapular" type="number" inputmode="decimal"></div>
-    <div><label for="measAxilar">Axilar média (mm)</label><input id="measAxilar" type="number" inputmode="decimal"></div>
-    <div><label for="measPeitoral">Peitoral (mm)</label><input id="measPeitoral" type="number" inputmode="decimal"></div>
-    <div><label for="measAbdominal">Abdominal (mm)</label><input id="measAbdominal" type="number" inputmode="decimal"></div>
-    <div><label for="measSuprailiaca">Supra-ilíaca (mm)</label><input id="measSuprailiaca" type="number" inputmode="decimal"></div>
-    <div><label for="measCoxa">Coxa (mm)</label><input id="measCoxa" type="number" inputmode="decimal"></div>
+    <div><label for="measTriceps">Tríceps (cm)</label><input id="measTriceps" type="number" inputmode="decimal"></div>
+    <div><label for="measSubescapular">Subescapular (cm)</label><input id="measSubescapular" type="number" inputmode="decimal"></div>
+    <div><label for="measAxilar">Axilar média (cm)</label><input id="measAxilar" type="number" inputmode="decimal"></div>
+    <div><label for="measPeitoral">Peitoral (cm)</label><input id="measPeitoral" type="number" inputmode="decimal"></div>
+    <div><label for="measAbdominal">Abdominal (cm)</label><input id="measAbdominal" type="number" inputmode="decimal"></div>
+    <div><label for="measSuprailiaca">Supra-ilíaca (cm)</label><input id="measSuprailiaca" type="number" inputmode="decimal"></div>
+    <div><label for="measCoxa">Coxa (cm)</label><input id="measCoxa" type="number" inputmode="decimal"></div>
   </div>
   <div class="sheet-actions">
     <button class="btn btn-ghost" id="measEntryCancelBtn">Cancelar</button>
@@ -237,10 +246,16 @@
     <span id="histMonthLabel"></span>
     <button id="histMonthNext">›</button>
   </div>
-  <div class="hist-grid" id="histGrid"></div>
-  <div class="hist-total" id="histTotal"></div>
-  <div class="hist-section-title">Treinos feitos</div>
-  <div id="histCatList"></div>
+  <div class="hist-top">
+    <div class="hist-left">
+      <div class="hist-section-title" style="margin-top:0;">Treinos feitos</div>
+      <div id="histCatList"></div>
+    </div>
+    <div class="hist-right">
+      <div class="hist-grid" id="histGrid"></div>
+      <div class="hist-total" id="histTotal"></div>
+    </div>
+  </div>
   <div class="hist-section-title">Progresso de carga</div>
   <div id="histGroups"></div>
   <div class="sheet-actions" style="margin-top:16px;">
@@ -311,13 +326,13 @@ const PERSON_INFO = {
 };
 const MEAS_FIELDS = [
   { id: "peso", label: "Peso", unit: "kg" },
-  { id: "triceps", label: "Tríceps", unit: "mm" },
-  { id: "subescapular", label: "Subescapular", unit: "mm" },
-  { id: "axilar", label: "Axilar média", unit: "mm" },
-  { id: "peitoral", label: "Peitoral", unit: "mm" },
-  { id: "abdominal", label: "Abdominal", unit: "mm" },
-  { id: "suprailiaca", label: "Supra-ilíaca", unit: "mm" },
-  { id: "coxa", label: "Coxa", unit: "mm" }
+  { id: "triceps", label: "Tríceps", unit: "cm" },
+  { id: "subescapular", label: "Subescapular", unit: "cm" },
+  { id: "axilar", label: "Axilar média", unit: "cm" },
+  { id: "peitoral", label: "Peitoral", unit: "cm" },
+  { id: "abdominal", label: "Abdominal", unit: "cm" },
+  { id: "suprailiaca", label: "Supra-ilíaca", unit: "cm" },
+  { id: "coxa", label: "Coxa", unit: "cm" }
 ];
 function ageOf(person, refDate){
   const ref = refDate || new Date();
@@ -327,19 +342,19 @@ function ageOf(person, refDate){
   return age;
 }
 function bodyFatPercent(person, m){
-  const skinfoldIds = ["triceps", "subescapular", "axilar", "peitoral", "abdominal", "suprailiaca", "coxa"];
+  const skinfoldIds = ["triceps","subescapular","axilar","peitoral","abdominal","suprailiaca","coxa"];
   const values = skinfoldIds.map(id => parseFloat(m[id]));
-  if (values.some(v => isNaN(v))) return null;
-  const sumMm = values.reduce((a, b) => a + b, 0);
+  if(values.some(v => isNaN(v))) return null;
+  const sumMm = values.reduce((a,b)=>a+b,0) * 10;
   const age = ageOf(person);
   let density;
-  if (PERSON_INFO[person].sex === "M") {
-    density = 1.112 - (0.00043499 * sumMm) + (0.00000055 * sumMm * sumMm) - (0.00028826 * age);
+  if(PERSON_INFO[person].sex === "M"){
+    density = 1.112 - 0.00043499*sumMm + 0.00000055*sumMm*sumMm - 0.00028826*age;
   } else {
-    density = 1.097 - (0.00046971 * sumMm) + (0.00000056 * sumMm * sumMm) - (0.00012828 * age);
+    density = 1.097 - 0.00046971*sumMm + 0.00000056*sumMm*sumMm - 0.00012828*age;
   }
-  const pct = (495 / density) - 450;
-  return Math.round(pct * 10) / 10;
+  const pct = (495/density) - 450;
+  return Math.round(pct*10)/10;
 }
 function monthKeyOf(d){ return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0"); }
 function maybeShowMonthlySummary(){
@@ -359,6 +374,9 @@ let activeCat = CATEGORIES[0].id;
 let editingId = null;
 let lastSyncOk = false;
 let activePerson = "rafael";
+try{ const sp = localStorage.getItem("meuNome"); if(sp === "rafael" || sp === "amanda") activePerson = sp; }catch(e){}
+let tabTouched = false;
+let todayApplied = false;
 let weekStart = startOfWeek(new Date());
 let initialLoadDone = false;
 let everHadData = false;
@@ -451,6 +469,7 @@ async function fetchRemote(){
     setStatus("");
     render();
     renderAttendance();
+    if(!tabTouched && !todayApplied){ todayApplied = true; applyTodayCat(); }
     if(backfillMissingHistory()) pushRemote();
     maybeShowMonthlySummary();
   }catch(e){
@@ -586,13 +605,31 @@ function weightDelta(ex, person){
   return curr - prev;
 }
 
+function todayCats(person){
+  const arr = cache._attendance && cache._attendance[person] && cache._attendance[person][dateKey(new Date())];
+  return Array.isArray(arr) ? arr : [];
+}
+function applyTodayCat(){
+  const t = todayCats(activePerson);
+  if(t.length && CATEGORIES.some(c => c.id === t[0])){
+    activeCat = t[0];
+    render();
+    setTimeout(() => { const a = tabsEl.querySelector(".tab.active"); if(a && a.scrollIntoView) a.scrollIntoView({inline:"center", block:"nearest"}); }, 50);
+  }
+}
 function renderTabs(){
   tabsEl.innerHTML = "";
   CATEGORIES.forEach(c => {
     const el = document.createElement("button");
     el.className = "tab" + (c.id === activeCat ? " active" : "");
     el.textContent = c.name;
-    el.onclick = () => { activeCat = c.id; render(); };
+    if(todayCats(activePerson).includes(c.id)){
+      const dot = document.createElement("span");
+      dot.className = "today-dot";
+      dot.title = "Treino de hoje";
+      el.appendChild(dot);
+    }
+    el.onclick = () => { tabTouched = true; activeCat = c.id; render(); };
     tabsEl.appendChild(el);
   });
   const histBtn = document.createElement("button");
@@ -646,7 +683,14 @@ function renderPersonTabs(){
     const el = document.createElement("button");
     el.className = "person-tab " + id + (activePerson === id ? " active" : "");
     el.textContent = label;
-    el.onclick = () => { activePerson = id; renderAttendance(); };
+    el.onclick = () => {
+      activePerson = id;
+      try{ localStorage.setItem("meuNome", id); }catch(e){}
+      renderAttendance();
+      tabTouched = false;
+      applyTodayCat();
+      render();
+    };
     personTabsEl.appendChild(el);
   });
 }
@@ -689,6 +733,8 @@ document.getElementById("attSaveBtn").onclick = async () => {
   else cache._attendance[activePerson][attEditingDate] = Array.from(attSelectedCats);
   closeAttSheet();
   renderAttendance();
+  if(attEditingDate === dateKey(new Date())){ tabTouched = false; applyTodayCat(); }
+  render();
   await pushRemote();
 };
 document.getElementById("attRemoveBtn").onclick = async () => {
@@ -823,7 +869,15 @@ function renderHist(){
     anyGroup = true;
     const group = document.createElement("div");
     group.className = "hist-group";
-    group.innerHTML = `<div class="hist-group-header">${escapeHtml(c.name)}</div>`;
+    const header = document.createElement("button");
+    header.type = "button";
+    header.className = "hist-group-header";
+    header.innerHTML = `<span>${escapeHtml(c.name)}</span><span class="hist-arrow">▼</span>`;
+    header.onclick = () => group.classList.toggle("open");
+    group.appendChild(header);
+    const body = document.createElement("div");
+    body.className = "hist-group-body";
+    group.appendChild(body);
     let anyEx = false;
     cache[c.id].forEach(ex => {
       if(!Array.isArray(ex.history) || ex.history.length === 0) return;
@@ -846,13 +900,13 @@ function renderHist(){
       const row = document.createElement("div");
       row.className = "hist-ex-row";
       row.innerHTML = `<div class="hist-ex-name">${escapeHtml(ex.name)}</div><div class="hist-ex-progress">${parts.join(" &nbsp;|&nbsp; ")}</div>`;
-      group.appendChild(row);
+      body.appendChild(row);
     });
     if(!anyEx){
       const note = document.createElement("div");
       note.className = "hist-empty-note";
       note.textContent = "Sem peso registrado nesse treino esse mês.";
-      group.appendChild(note);
+      body.appendChild(note);
     }
     groupsEl.appendChild(group);
   });
@@ -988,7 +1042,7 @@ renderAttendance();
 setStatus("Carregando…");
 fetchRemote();
 setInterval(fetchRemote, POLL_MS);
-document.addEventListener("visibilitychange", () => { if(!document.hidden) fetchRemote(); });
+document.addEventListener("visibilitychange", () => { if(!document.hidden){ tabTouched = false; todayApplied = false; fetchRemote(); } });
 </script>
 </body>
 </html>
