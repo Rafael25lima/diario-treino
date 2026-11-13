@@ -172,6 +172,7 @@
   .meas-table th.amanda{ color:var(--amanda); }
   .meas-table td{ text-align:center; padding:7px 4px; border-bottom:1px solid var(--paper-line); }
   .meas-table td:first-child{ text-align:left; color:var(--ink-soft); }
+  .meas-table tr.meas-section td{ text-align:left; font-size:.72rem; text-transform:uppercase; letter-spacing:.03em; color:var(--ink-soft); padding-top:14px; }
   .meas-table tr.total td{ font-weight:600; background:var(--card); }
   .meas-delta{ display:block; font-size:.68rem; color:var(--ink-soft); font-weight:400; }
   .meas-delta.up{ color:var(--rust); }
@@ -223,14 +224,28 @@
   <div class="meas-person-toggle" id="measEntryPersonToggle"></div>
   <div class="meas-grid">
     <div><label for="measPeso">Peso (kg)</label><input id="measPeso" type="number" inputmode="decimal"></div>
-    <div><label for="measTriceps">Tríceps (cm)</label><input id="measTriceps" type="number" inputmode="decimal"></div>
-    <div><label for="measSubescapular">Subescapular (cm)</label><input id="measSubescapular" type="number" inputmode="decimal"></div>
-    <div><label for="measAxilar">Axilar média (cm)</label><input id="measAxilar" type="number" inputmode="decimal"></div>
-    <div><label for="measPeitoral">Peitoral (cm)</label><input id="measPeitoral" type="number" inputmode="decimal"></div>
-    <div><label for="measAbdominal">Abdominal (cm)</label><input id="measAbdominal" type="number" inputmode="decimal"></div>
-    <div><label for="measSuprailiaca">Supra-ilíaca (cm)</label><input id="measSuprailiaca" type="number" inputmode="decimal"></div>
-    <div><label for="measCoxa">Coxa (cm)</label><input id="measCoxa" type="number" inputmode="decimal"></div>
+    <div><label for="measTriceps">Tríceps (mm)</label><input id="measTriceps" type="number" inputmode="decimal"></div>
+    <div><label for="measSubescapular">Subescapular (mm)</label><input id="measSubescapular" type="number" inputmode="decimal"></div>
+    <div><label for="measAxilar">Axilar média (mm)</label><input id="measAxilar" type="number" inputmode="decimal"></div>
+    <div><label for="measPeitoral">Peitoral (mm)</label><input id="measPeitoral" type="number" inputmode="decimal"></div>
+    <div><label for="measAbdominal">Abdominal (mm)</label><input id="measAbdominal" type="number" inputmode="decimal"></div>
+    <div><label for="measSuprailiaca">Supra-ilíaca (mm)</label><input id="measSuprailiaca" type="number" inputmode="decimal"></div>
+    <div><label for="measCoxa">Coxa (mm)</label><input id="measCoxa" type="number" inputmode="decimal"></div>
   </div>
+  <div class="hist-section-title">Circunferências (cm)</div>
+  <div class="meas-grid">
+    <div><label for="measCircPescoco">Pescoço (cm)</label><input id="measCircPescoco" type="number" inputmode="decimal"></div>
+    <div><label for="measCircOmbros">Ombros (cm)</label><input id="measCircOmbros" type="number" inputmode="decimal"></div>
+    <div><label for="measCircTorax">Tórax (cm)</label><input id="measCircTorax" type="number" inputmode="decimal"></div>
+    <div><label for="measCircBraco">Braço (cm)</label><input id="measCircBraco" type="number" inputmode="decimal"></div>
+    <div><label for="measCircAntebraco">Antebraço (cm)</label><input id="measCircAntebraco" type="number" inputmode="decimal"></div>
+    <div><label for="measCircCintura">Cintura (cm)</label><input id="measCircCintura" type="number" inputmode="decimal"></div>
+    <div><label for="measCircAbdomen">Abdômen (cm)</label><input id="measCircAbdomen" type="number" inputmode="decimal"></div>
+    <div><label for="measCircQuadril">Quadril (cm)</label><input id="measCircQuadril" type="number" inputmode="decimal"></div>
+    <div><label for="measCircCoxa">Coxa (cm)</label><input id="measCircCoxa" type="number" inputmode="decimal"></div>
+    <div><label for="measCircPanturrilha">Panturrilha (cm)</label><input id="measCircPanturrilha" type="number" inputmode="decimal"></div>
+  </div>
+  <div style="height:12px;"></div>
   <div class="sheet-actions">
     <button class="btn btn-ghost" id="measEntryCancelBtn">Cancelar</button>
     <button class="btn btn-primary" id="measEntrySaveBtn">Salvar</button>
@@ -326,14 +341,27 @@ const PERSON_INFO = {
 };
 const MEAS_FIELDS = [
   { id: "peso", label: "Peso", unit: "kg" },
-  { id: "triceps", label: "Tríceps", unit: "cm" },
-  { id: "subescapular", label: "Subescapular", unit: "cm" },
-  { id: "axilar", label: "Axilar média", unit: "cm" },
-  { id: "peitoral", label: "Peitoral", unit: "cm" },
-  { id: "abdominal", label: "Abdominal", unit: "cm" },
-  { id: "suprailiaca", label: "Supra-ilíaca", unit: "cm" },
-  { id: "coxa", label: "Coxa", unit: "cm" }
+  { id: "triceps", label: "Tríceps", unit: "mm" },
+  { id: "subescapular", label: "Subescapular", unit: "mm" },
+  { id: "axilar", label: "Axilar média", unit: "mm" },
+  { id: "peitoral", label: "Peitoral", unit: "mm" },
+  { id: "abdominal", label: "Abdominal", unit: "mm" },
+  { id: "suprailiaca", label: "Supra-ilíaca", unit: "mm" },
+  { id: "coxa", label: "Coxa", unit: "mm" }
 ];
+const CIRC_FIELDS = [
+  { id: "circPescoco", label: "Pescoço", unit: "cm" },
+  { id: "circOmbros", label: "Ombros", unit: "cm" },
+  { id: "circTorax", label: "Tórax", unit: "cm" },
+  { id: "circBraco", label: "Braço", unit: "cm" },
+  { id: "circAntebraco", label: "Antebraço", unit: "cm" },
+  { id: "circCintura", label: "Cintura", unit: "cm" },
+  { id: "circAbdomen", label: "Abdômen", unit: "cm" },
+  { id: "circQuadril", label: "Quadril", unit: "cm" },
+  { id: "circCoxa", label: "Coxa", unit: "cm" },
+  { id: "circPanturrilha", label: "Panturrilha", unit: "cm" }
+];
+function measInputId(id){ return "meas" + id.charAt(0).toUpperCase() + id.slice(1); }
 function ageOf(person, refDate){
   const ref = refDate || new Date();
   const [by,bm,bd] = PERSON_INFO[person].birthdate.split("-").map(Number);
@@ -345,7 +373,9 @@ function bodyFatPercent(person, m){
   const skinfoldIds = ["triceps","subescapular","axilar","peitoral","abdominal","suprailiaca","coxa"];
   const values = skinfoldIds.map(id => parseFloat(m[id]));
   if(values.some(v => isNaN(v))) return null;
-  const sumMm = values.reduce((a,b)=>a+b,0) * 10;
+  // Dobras em mm (leitura do adipômetro). Se a soma for < 20, os valores só podem estar em cm: converte.
+  let sumMm = values.reduce((a,b)=>a+b,0);
+  if(sumMm < 20) sumMm *= 10;
   const age = ageOf(person);
   let density;
   if(PERSON_INFO[person].sex === "M"){
@@ -977,6 +1007,14 @@ function renderMeas(){
   const rFat = rMeas ? bodyFatPercent("rafael", rMeas) : null;
   const aFat = aMeas ? bodyFatPercent("amanda", aMeas) : null;
   rows += `<tr class="total"><td>% gordura estimado</td><td>${rFat !== null ? rFat+"%" : "—"}</td><td>${aFat !== null ? aFat+"%" : "—"}</td></tr>`;
+  rows += `<tr class="meas-section"><td colspan="3">Circunferências</td></tr>`;
+  CIRC_FIELDS.forEach(f => {
+    const rv = rMeas ? rMeas[f.id] : null;
+    const av = aMeas ? aMeas[f.id] : null;
+    const pr = rPrev ? rPrev[f.id] : null;
+    const pa = aPrev ? aPrev[f.id] : null;
+    rows += `<tr><td>${f.label}</td><td>${cell(rv, pr, f.unit)}</td><td>${cell(av, pa, f.unit)}</td></tr>`;
+  });
   table.innerHTML = rows;
 }
 
@@ -989,8 +1027,8 @@ function openMeasEntry(person){
   renderMeasEntryToggle();
   const key = monthKeyOf(measMonth);
   const existing = cache._measurements[measEntryPerson][key] || {};
-  MEAS_FIELDS.forEach(f => {
-    document.getElementById("meas" + f.id.charAt(0).toUpperCase() + f.id.slice(1)).value = existing[f.id] || "";
+  MEAS_FIELDS.concat(CIRC_FIELDS).forEach(f => {
+    document.getElementById(measInputId(f.id)).value = existing[f.id] || "";
   });
   measEntryBackdrop.classList.add("open");
   measEntrySheet.classList.add("open");
@@ -1016,8 +1054,8 @@ measEntryBackdrop.onclick = closeMeasEntry;
 document.getElementById("measEntrySaveBtn").onclick = async () => {
   const key = monthKeyOf(measMonth);
   const data = {};
-  MEAS_FIELDS.forEach(f => {
-    const v = document.getElementById("meas" + f.id.charAt(0).toUpperCase() + f.id.slice(1)).value.trim();
+  MEAS_FIELDS.concat(CIRC_FIELDS).forEach(f => {
+    const v = document.getElementById(measInputId(f.id)).value.trim();
     if(v !== "") data[f.id] = v;
   });
   cache._measurements[measEntryPerson][key] = data;
