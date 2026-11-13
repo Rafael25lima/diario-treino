@@ -1006,7 +1006,18 @@ function renderMeas(){
   });
   const rFat = rMeas ? bodyFatPercent("rafael", rMeas) : null;
   const aFat = aMeas ? bodyFatPercent("amanda", aMeas) : null;
-  rows += `<tr class="total"><td>% gordura estimado</td><td>${rFat !== null ? rFat+"%" : "—"}</td><td>${aFat !== null ? aFat+"%" : "—"}</td></tr>`;
+  const rFatPrev = rPrev ? bodyFatPercent("rafael", rPrev) : null;
+  const aFatPrev = aPrev ? bodyFatPercent("amanda", aPrev) : null;
+  function fatCell(curr, prev){
+    if(curr === null) return "—";
+    let delta = "";
+    if(prev !== null){
+      const d = Math.round((curr - prev)*10)/10;
+      if(d !== 0) delta = `<span class="meas-delta ${d>0?"up":"down"}">${d>0?"+":""}${d}</span>`;
+    }
+    return curr + "%" + delta;
+  }
+  rows += `<tr class="total"><td>% gordura estimado</td><td>${fatCell(rFat, rFatPrev)}</td><td>${fatCell(aFat, aFatPrev)}</td></tr>`;
   rows += `<tr class="meas-section"><td colspan="3">Circunferências</td></tr>`;
   CIRC_FIELDS.forEach(f => {
     const rv = rMeas ? rMeas[f.id] : null;
